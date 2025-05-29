@@ -320,7 +320,7 @@ with col_q_num:
     )
 
 with col_next:
-    st.button(">>", on_click=lambda: go_to_playlist_index(st.session_state.playlist_index + 1), use_container_width=True)
+    st.button("\>>", on_click=lambda: go_to_playlist_index(st.session_state.playlist_index + 1), use_container_width=True)
 
 with col_shuffle:
     # Toggle shuffle mode
