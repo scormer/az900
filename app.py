@@ -15,10 +15,15 @@ DATA_DIR = "user_data"
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
+# Passcode for app access
+APP_PASSCODE = "az900fun"
+
 # --- Session State Initialization ---
 # This function ensures all necessary state variables are initialized when the app starts
 # or when a new session begins.
 def initialize_session_state():
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
     if 'user_name' not in st.session_state:
         st.session_state.user_name = ""
     if 'all_questions' not in st.session_state:
@@ -234,7 +239,19 @@ st.title("AZ-900 Flashcards")
 # Initialize all session state variables
 initialize_session_state()
 
-# --- Initial Setup on First Run ---
+# --- Passcode Authentication ---
+if not st.session_state.authenticated:
+    st.subheader("Enter Passcode to Access App")
+    passcode_input = st.text_input("Passcode:", type="password", key="passcode_input")
+    if st.button("Submit Passcode"):
+        if passcode_input == APP_PASSCODE:
+            st.session_state.authenticated = True
+            st.rerun() # Rerun the app to show the main content
+        else:
+            st.error("Incorrect passcode. Please try again.")
+    st.stop() # Stop execution if not authenticated
+
+# --- Initial Setup on First Run (after authentication) ---
 # This ensures the playlist is built and an image is displayed when the app first loads.
 # This block is moved up to ensure playlist is built before any UI elements try to access it.
 if not st.session_state.current_playlist:
@@ -303,7 +320,7 @@ with col_q_num:
     )
 
 with col_next:
-    st.button("\>>", on_click=lambda: go_to_playlist_index(st.session_state.playlist_index + 1), use_container_width=True)
+    st.button(">>", on_click=lambda: go_to_playlist_index(st.session_state.playlist_index + 1), use_container_width=True)
 
 with col_shuffle:
     # Toggle shuffle mode
@@ -320,6 +337,7 @@ with col_answer:
         use_container_width=True
     )
 with col_skip:
+    # Skip the current question
     st.button("Skip Current", on_click=skip_current_question, use_container_width=True)
 
 st.divider()
